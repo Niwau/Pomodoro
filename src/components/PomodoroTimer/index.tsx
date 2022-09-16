@@ -14,8 +14,10 @@ type resetSessionType = (
   timeout: NodeJS.Timer | undefined
 ) => void;
 
+const sessionTime = 10;
+
 export const PomodoroTimer = () => {
-  const [seconds, setSeconds] = useState(5);
+  const [seconds, setSeconds] = useState(sessionTime);
   const [playButton, setPlayButton] = useState("START");
   const [progress, setProgress] = useState(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timer>();
@@ -52,7 +54,7 @@ export const PomodoroTimer = () => {
   const resetSession: resetSessionType = (interval, timeout) => {
     clearInterval(interval);
     clearTimeout(timeout);
-    setSeconds(5);
+    setSeconds(sessionTime);
     setProgress(0);
     setPlayButton("START");
   };
@@ -66,7 +68,7 @@ export const PomodoroTimer = () => {
 				strokeWidth={3}
         value={progress}
         minValue={0}
-        maxValue={5}
+        maxValue={sessionTime}
         styles={buildStyles({ pathColor: "#FFFFFF", trailColor: "#FFFFFF33" })}
       >
         <h1>
