@@ -16,9 +16,13 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     margin: 0;
     font-family: 'Poppins', 'sans-serif';
-
+  
     body {
       background-color: #F35858;
+    }
+
+    html {
+      font-size: 10px;
     }
 
   }
