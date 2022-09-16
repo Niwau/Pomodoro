@@ -1,92 +1,81 @@
-import { getMinutes, getSeconds } from "../../utils";
-import { useState } from "react";
+import { OutlineCircle } from "../OutlineCircle";
 import { Wrapper } from "./styles";
+import { useState } from "react";
 
 import {
   buildStyles,
   CircularProgressbarWithChildren,
 } from "react-circular-progressbar";
-import { OutlineCircle } from "../OutlineCircle";
+
+import { getMinutes, getSeconds } from "../../utils";
 import { FilledCircle } from "../FilledCircle";
 
-type resetSessionType = (
-  interval: NodeJS.Timer | undefined,
-  timeout: NodeJS.Timer | undefined
-) => void;
-
-const sessionTime = 10;
+const circularProgressBarStyles = buildStyles({
+  pathColor: "#FFFFFF",
+  trailColor: "#FFFFFF33"
+})
 
 export const PomodoroTimer = () => {
-  const [seconds, setSeconds] = useState(sessionTime);
-  const [playButton, setPlayButton] = useState("START");
-  const [progress, setProgress] = useState(0);
-  const [intervalId, setIntervalId] = useState<NodeJS.Timer>();
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timer>();
-	const [sessionCount, setSessionCount] = useState(0);
 
-  const playSession = () => {
-    if (playButton == "START" && sessionCount != 4) {
+  const initialTime = 1500;
+  const [sessionTime, setSessionTime] = useState(initialTime)
+  const [progress, setProgress] = useState(0)
+  const [buttonState, setButtonState] = useState("START")
 
-			setPlayButton("PAUSE");
+  const [intervalIdState, setIntervalIdState] = useState<NodeJS.Timer>()
+  const [timeoutIdState, setTimeoutIdState] = useState<NodeJS.Timer>()
 
-      const interval = setInterval(() => {
-        setSeconds((prevState) => prevState - 1);
-        setProgress((prevState) => prevState + 1);
-      }, 1000);
-      setIntervalId(interval);
-
-      const timeout: NodeJS.Timer = setTimeout(() => {
-					setSessionCount(prevState => prevState + 1);
-					resetSession(interval, timeout);
-				},seconds * 1000
-      );
-
-      setTimeoutId(timeout);
-
-    } else {
-			setSessionCount(0);
-      clearInterval(intervalId);
-      clearTimeout(timeoutId);
-      setPlayButton("START");
-    }
+  const resetCounter = (intervalId : NodeJS.Timer | undefined, timeoutId : NodeJS.Timer | undefined) => {
+    clearInterval(intervalId)
+    clearTimeout(timeoutId)
+    setSessionTime(initialTime)
   }
 
-  const resetSession: resetSessionType = (interval, timeout) => {
-    clearInterval(interval);
-    clearTimeout(timeout);
-    setSeconds(sessionTime);
-    setProgress(0);
-    setPlayButton("START");
-  };
+  const startCounter = () => {
+    setButtonState(buttonState == "START" ? "RESET" : "START")
 
-  const minutesRemaining = getMinutes(seconds);
-  const secondsRemaining = getSeconds(seconds);
+    if(progress == 4){
+      setProgress(0)
+      setButtonState("START")
+
+    } else if (buttonState == "START") {
+        const intervalId = setInterval(() => {
+          setSessionTime(prevState => prevState - 1)
+        }, 1000)
+    
+        setIntervalIdState(intervalId)
+    
+        const timeoutId = setTimeout(() => {
+          setProgress(prevState => prevState + 1)
+          resetCounter(intervalId, timeoutId)
+          setButtonState("START")
+        }, initialTime * 1000)
+    
+        setTimeoutIdState(timeoutId)
+
+      } else if (buttonState == "RESET") {
+          clearInterval(intervalIdState)
+          clearTimeout(timeoutIdState)
+          setSessionTime(initialTime)
+        }
+  }
+
+  const minutesLeft = getMinutes(sessionTime)
+  const secondsLeft = getSeconds(sessionTime)
 
   return (
     <Wrapper>
-      <CircularProgressbarWithChildren
-				strokeWidth={3}
-        value={progress}
-        minValue={0}
-        maxValue={sessionTime}
-        styles={buildStyles({ pathColor: "#FFFFFF", trailColor: "#FFFFFF33" })}
-      >
-        <h1>
-          {minutesRemaining}:
-          {secondsRemaining < 10 ? "0" + secondsRemaining : secondsRemaining}
-        </h1>
+      <CircularProgressbarWithChildren strokeWidth={3} value={-sessionTime} minValue={-initialTime} maxValue={0} styles={circularProgressBarStyles}>
+        <h1>{minutesLeft < 10 ? "0" + minutesLeft : minutesLeft}:{secondsLeft < 10 ? "0" + secondsLeft : secondsLeft}</h1>
       </CircularProgressbarWithChildren>
       <div>
-        <button onClick={playSession}>{playButton}</button>
-        <button onClick={() => resetSession(intervalId, timeoutId)}>
-          RESET
-        </button>
+        <button onClick={startCounter}>{buttonState}</button>
       </div>
       <figure>
-				{sessionCount < 1 ? <OutlineCircle/> : <FilledCircle/>}
-				{sessionCount < 2 ? <OutlineCircle/> : <FilledCircle/>}
-				{sessionCount < 3 ? <OutlineCircle/> : <FilledCircle/>}
-				{sessionCount < 4 ? <OutlineCircle/> : <FilledCircle/>}
+				{ progress >= 1 ? <FilledCircle/> : <OutlineCircle/> }
+				{ progress >= 2 ? <FilledCircle/> : <OutlineCircle/> }
+				{ progress >= 3 ? <FilledCircle/> : <OutlineCircle/> }
+				{ progress >= 4 ? <FilledCircle/> : <OutlineCircle/> }
 			</figure>
     </Wrapper>
   );

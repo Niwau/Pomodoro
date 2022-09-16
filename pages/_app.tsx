@@ -1,7 +1,8 @@
-import type { AppProps } from 'next/app'
 import { createGlobalStyle } from 'styled-components'
+import type { AppProps } from 'next/app'
 
 function MyApp({ Component, pageProps }: AppProps) {
+
   return (
     <>
       <Component {...pageProps} />
@@ -16,7 +17,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     margin: 0;
     font-family: 'Poppins', 'sans-serif';
-  
+
     body {
       background-color: #F35858;
     }

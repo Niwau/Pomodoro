@@ -18,7 +18,7 @@ export const Wrapper = styled.div`
 
     margin-top: 2rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
 
     > button {
       cursor: pointer;
